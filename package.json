@@ -1,0 +1,12 @@
+{
+  "name": "graphitout",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Single-file architecture and algorithm diagram editor",
+  "scripts": {
+    "test": "node qa/verify.cjs && node qa/verify-design.cjs && node qa/verify-http.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

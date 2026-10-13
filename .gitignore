@@ -1,0 +1,7 @@
+# Development dependencies and generated checks; the app itself has no runtime dependencies.
+node_modules/
+qa/output/
+qa/reference/
+npm-debug.log*
+.DS_Store
+Thumbs.db
