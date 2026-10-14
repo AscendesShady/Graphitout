@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "graphitout": {
+      "type": "stdio",
+      "command": "C:/Tools/Graphitout/.venv/Scripts/python.exe",
+      "args": ["C:/Tools/Graphitout/graphitout_mcp.py", "--project", "${workspaceFolder}"]
+    }
+  }
+}

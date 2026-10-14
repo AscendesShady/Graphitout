@@ -1,10 +1,11 @@
 {
   "name": "graphitout",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Single-file architecture and algorithm diagram editor",
   "scripts": {
-    "test": "node qa/verify.cjs && node qa/verify-design.cjs && node qa/verify-http.cjs"
+    "test": "node qa/verify.cjs && node qa/verify-design.cjs && node qa/verify-http.cjs",
+    "test:mcp-browser": "node qa/verify-mcp-browser.cjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

@@ -2,6 +2,8 @@
 
 A single-file, offline editor for software architecture and algorithm diagrams.
 
+**Two modes:** keep using the independent browser editor for initial ideas, or use the optional local MCP companion to connect a coding agent to any project folder. The standalone editor still needs no server. [MCP setup for Claude Code, VS Code, and other agents](docs/MCP_SETUP.md).
+
 ## Open it
 
 Double-click **index.html**, or open it in a modern browser. That is the entire application: HTML, CSS, JavaScript, icons, and the starter diagrams are embedded. No server, build step, account, package installation, or network connection is needed.
@@ -33,6 +35,10 @@ On phones, use **+** to open the block library and the panel icon to edit the se
 - **SVG:** a scalable diagram image. Long labels and notes are visually shortened; the complete block text is included in SVG titles. JSON retains all text.
 - **Mermaid:** a flowchart description for tools that support Mermaid. It exports node names and edge labels; the receiving tool chooses its own layout.
 - **Portable HTML:** a copy of the entire editor with the current diagram embedded. Each exported copy has independent browser autosave. Later edits stay in browser storage; export another copy to update the actual file.
+- **Review pack:** the graph plus its code baseline, relative file/symbol references, source evidence, design decisions, and second-opinion notes. Take it to another agent or import it into the browser later.
+- **Implementation brief:** Markdown showing the intended workflow, current architecture, and semantic changes from the code baseline.
+
+Use **Workflow & agent review** to record goals, architecture decisions, and feedback. File and symbol references are optional while sketching. When project-connected, graph edits become a change brief that your coding agent can implement with its ordinary coding tools; moving blocks changes only the diagram layout.
 
 ## Shortcuts
 
