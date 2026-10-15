@@ -106,6 +106,8 @@ Dynamic dispatch, runtime behavior, and data flow need agent review or separate 
 
 In either editor, edit responsibilities, connections, file references, or **Workflow & agent review** notes. In connected mode, changes are saved in the project, where the coding agent can read them.
 
+**Scribble note** blocks also work in connected mode. Their `drawing` field contains a fixed `width: 1000`, `height: 600`, and `strokes` array. Each stroke has a six-digit hex `color`, a numeric `width` from 1 to 20, and `points` as `[x, y, pressure]` triples (pressure 0–1). Limits are 500 strokes and 12,000 points per note. Drawing edits are included in design changes and review packs. Add a text description to explain handwriting to agents that only read text. Moving the block still changes layout only.
+
 Moving blocks or choosing connector ports is layout only. Changes to responsibilities, graph structure, communication labels/directions, and workflow notes express proposed design requirements.
 
 Then tell your agent:

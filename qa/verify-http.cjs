@@ -6,10 +6,14 @@ const http = require('node:http');
 let browser, server;
 (async () => {
  const html = await fs.readFile(path.resolve(__dirname, '../index.html'));
- server = http.createServer((req, res) => {
+ server = http.createServer(async (req, res) => {
   if (req.url === '/Graphitout/' || req.url === '/Graphitout/index.html') {
    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
    res.end(html);
+  } else if (/^\/Graphitout\/(manifest\.webmanifest|sw\.js|icons\/(icon-192|icon-512|maskable-512)\.png)$/.test(req.url)) {
+   const file=req.url.slice('/Graphitout/'.length);
+   res.writeHead(200, { 'Content-Type': file.endsWith('.png')?'image/png':file.endsWith('.js')?'text/javascript':'application/manifest+json' });
+   res.end(await fs.readFile(path.resolve(__dirname, '..', file)));
   } else { res.writeHead(404); res.end(); }
  });
  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -34,7 +38,7 @@ let browser, server;
  const download = await downloadPromise;
  assert.equal(await download.failure(), null);
  assert.deepEqual(errors, []);
- assert.ok(resources.every(r => r === url || r.startsWith('blob:')), 'Unexpected application asset dependency');
+ assert.ok(resources.every(r => r.startsWith(url) || r.startsWith('blob:')), 'Unexpected external application dependency');
  console.log('PASS HTTP /Graphitout/ serves the self-contained app, preserves edits, and exports JSON');
  await browser.close();
  await new Promise(resolve => server.close(resolve));

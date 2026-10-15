@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
-TYPES = {"component", "ui", "service", "api", "database", "decision", "start", "note"}
+TYPES = {"component", "ui", "service", "api", "database", "decision", "start", "note", "scribble"}
 PORTS = {"left", "right", "top", "bottom"}
 MAX_BYTES = 16 * 1024 * 1024
 
@@ -41,6 +41,33 @@ def _text(value: Any, limit: int, default: str = "") -> str:
     if len(value) > limit:
         raise ValueError(f"Text exceeds the {limit}-character limit.")
     return value
+
+
+def validate_drawing(value: Any) -> dict:
+    """Bounded, portable vector ink. Coordinates and pressure never contain executable markup."""
+    if not isinstance(value, dict) or value.get("width") != 1000 or value.get("height") != 600:
+        raise ValueError("Drawing must use a 1000 x 600 pad.")
+    strokes = value.get("strokes")
+    if not isinstance(strokes, list) or len(strokes) > 500:
+        raise ValueError("Drawing limit: 500 strokes.")
+    result = {"width": 1000, "height": 600, "strokes": []}
+    count = 0
+    def number(n, low, high):
+        return type(n) in (int, float) and math.isfinite(n) and low <= n <= high
+    for stroke in strokes:
+        if not isinstance(stroke, dict) or not isinstance(stroke.get("color"), str) or not re.fullmatch(r"#[0-9a-fA-F]{6}", stroke["color"]) or not number(stroke.get("width"), 1, 20):
+            raise ValueError("Invalid drawing ink or width.")
+        points = stroke.get("points")
+        if not isinstance(points, list) or not points:
+            raise ValueError("Drawing strokes need points.")
+        count += len(points)
+        if count > 12000:
+            raise ValueError("Drawing limit: 12,000 points per note.")
+        for point in points:
+            if not isinstance(point, list) or len(point) != 3 or not all(number(n, 0, limit) for n, limit in zip(point, (1000, 600, 1))):
+                raise ValueError("Invalid drawing coordinates or pressure.")
+        result["strokes"].append({"color": stroke["color"], "width": stroke["width"], "points": copy.deepcopy(points)})
+    return result
 
 
 def validate_graph(data: dict, *, baseline: bool = False) -> dict:
@@ -69,6 +96,8 @@ def validate_graph(data: dict, *, baseline: bool = False) -> dict:
              "title": _text(node.get("title"), 160, "Untitled block"), "description": _text(node.get("description"), 5000),
              "x": node["x"], "y": node["y"]}
         _metadata(node, n)
+        if "drawing" in node:
+            n["drawing"] = validate_drawing(node["drawing"])
         result["nodes"].append(n)
     for edge in edges:
         if not isinstance(edge, dict):
@@ -149,7 +178,7 @@ def empty_graph(name: str) -> dict:
 
 def semantic(item: dict) -> dict:
     """Position, routing ports, and evidence bookkeeping are not code-change requests."""
-    fields = ("id", "type", "title", "description", "file", "symbol", "from", "to", "label", "style", "direction", "relation")
+    fields = ("id", "type", "title", "description", "file", "symbol", "from", "to", "label", "style", "direction", "relation", "drawing")
     return {key: item[key] for key in fields if key in item}
 
 

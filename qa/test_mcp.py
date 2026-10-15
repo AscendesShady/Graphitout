@@ -57,6 +57,36 @@ class ModelAndMapping(unittest.TestCase):
         state = self.store.read()
         return self.store.save(merge_mapping(state["graph"], scan_project(self.root)), state["revision"])
 
+    def test_scribble_roundtrip_and_design_changes(self):
+        state = self.mapped()
+        graph = state['graph']
+        drawing = {'width': 1000, 'height': 600, 'strokes': [
+            {'color': '#294b80', 'width': 5, 'points': [[100, 120, 0.2], [300, 200, 0.9]]}]}
+        node = {'id': 'ink1', 'type': 'scribble', 'title': 'Pen idea', 'description': 'Review this flow',
+                'x': 20, 'y': 40, 'drawing': drawing}
+        graph['nodes'].append(node)
+        saved = self.store.save(graph, state['revision'])
+        self.assertEqual(saved['graph']['nodes'][-1]['drawing'], drawing)
+        self.assertEqual(changes(saved['graph'])['nodes']['added'][0]['drawing'], drawing)
+        # A re-map must preserve manual handwritten design notes.
+        remapped = merge_mapping(saved['graph'], scan_project(self.root))
+        self.assertEqual(next(n for n in remapped['nodes'] if n['id'] == 'ink1')['drawing'], drawing)
+        accepted = copy.deepcopy(saved['graph'])
+        accepted['codeBaseline'] = {k: copy.deepcopy(v) for k, v in accepted.items() if k not in ('project', 'codeBaseline')}
+        accepted['nodes'][-1]['x'] += 40
+        self.assertFalse(changes(accepted)['hasChanges'])
+        accepted['nodes'][-1]['drawing']['strokes'][0]['points'][0][2] = 0.8
+        self.assertTrue(changes(accepted)['hasChanges'])
+        for invalid in [float('nan'), -1, 1.1, True, '0.5']:
+            bad = copy.deepcopy(saved['graph'])
+            bad['nodes'][-1]['drawing']['strokes'][0]['points'][0][2] = invalid
+            with self.assertRaises(ValueError):
+                validate_graph(bad)
+        bad = copy.deepcopy(saved['graph'])
+        bad['nodes'][-1]['drawing']['strokes'][0]['color'] = '<svg onload="alert(1)">'
+        with self.assertRaises(ValueError):
+            validate_graph(bad)
+
     def test_python_calls_imports_and_js_imports_are_grounded(self):
         graph = self.mapped()["graph"]
         nodes = {n["id"]: n for n in graph["nodes"]}

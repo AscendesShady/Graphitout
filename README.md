@@ -12,7 +12,23 @@ Double-click **index.html**, or open it in a modern browser. That is the entire 
 
 In the repository's **Settings → Pages**, choose **Deploy from a branch**, then **main** and **/ (root)**. Save the setting. The app's entry point is the root `index.html`; there is no build command or asset path to configure.
 
-After GitHub finishes deploying, the project URL will be **https://ascendesshady.github.io/Graphitout/**. The app has no external runtime assets and works under this project path. When using the hosted site, browser autosave remains local to that browser; export JSON to share a diagram or keep a backup. Offline startup is supported by downloaded HTML copies; this version does not install a service worker for the hosted site.
+After GitHub finishes deploying, the project URL will be **https://ascendesshady.github.io/Graphitout/**. The app works under this project path. When using the hosted site, browser autosave remains local to that browser; export JSON to share a diagram or keep a backup.
+
+## Install on Android
+
+Open the hosted HTTPS site in Chrome or Samsung Internet. Choose **Install app** / **Add to Home screen** from the browser menu, or choose **Export → Install Graphitout** for the available install prompt or instructions. The installed app opens in its own window. Installation availability depends on the browser; see [browser installation requirements](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable).
+
+The hosted version uses `manifest.webmanifest`, local PNG icons, and `sw.js` to cache the editor for offline reopening after a successful online visit. Keep these files alongside `index.html` when publishing. Updates activate after existing app windows close; reopening online refreshes the cache. The cache contains only public editor assets. Diagrams stay in browser storage, and cache updates preserve them. Export JSON for durable backups and device transfers.
+
+Downloaded HTML and portable copies still work independently without these companion files. Installation uses the hosted site. The authenticated MCP editor does not register a service worker or install manifest.
+
+## Handwrite with S Pen
+
+Add **Scribble note** from the block library, then double-click the block or select **Open drawing pad** in its details. Use S Pen, another browser-supported pen, or a mouse. Pen pressure changes stroke width. Fingers are ignored by default to reduce palm marks; enable **Draw with finger** when wanted. Input handling depends on the browser reporting pen events separately from touch.
+
+Choose ink color and width, erase whole strokes, clear the pad, or use **Undo ink / Redo ink**. The pen's eraser tip is supported when reported by the browser. Each finished stroke autosaves; **Done** returns to the graph. The scribble block can be dragged and connected like any other block. A text description can explain the drawing to agents that cannot interpret handwriting.
+
+Drawings remain editable vector strokes in JSON, review packs, MCP state, and portable HTML, and appear in SVG image exports. Mermaid carries block titles and connections; it cannot carry freehand ink. Each note supports up to 500 strokes / 12,000 points; add another note for larger sketches. Export a fresh backup after editing.
 
 ## Plan a system
 
@@ -60,7 +76,7 @@ Use Command instead of Ctrl on a Mac. Double-click a block or arrow to edit it; 
 
 ## Is one HTML file enough?
 
-**Yes, for a personal diagram editor.** JavaScript handles the graph and interactions, CSS handles the interface, SVG draws the connections, and browser storage handles local persistence. All of these can live in one HTML file.
+**Yes, for a personal diagram editor, including handwritten notes.** JavaScript handles the graph and interactions, CSS handles the interface, SVG draws the connections, and browser storage handles local persistence. All of these live in one HTML file. Android PWA installation adds a small manifest, icons, and offline service worker alongside it; the optional MCP server adds project integration.
 
 A backend would be useful for accounts, cloud synchronization, access permissions, and real-time collaboration. Splitting the source into modules would help maintain a much larger application, but it is not required to use this version. Graphitout plans software; it does not execute the algorithms or services in a diagram.
 
@@ -74,7 +90,7 @@ Source references inspected: the repository README, `lib/constants/glass_default
 
 ## Verification
 
-The scripts under `qa/` are development-only Playwright checks. They are not needed to run Graphitout. The checks cover graph editing, dragging, connections, undo/redo, relationship inspection, JSON import validation, all export formats, portable-copy persistence, offline startup, phone controls at 390/360px widths, unavailable browser storage, tablet layouts, the glass tool indicator, accessibility preferences, and the GitHub Pages project path.
+The scripts under `qa/` are development-only Playwright checks. They are not needed to run Graphitout. The checks cover graph editing, dragging, connections, undo/redo, relationship inspection, JSON import validation, all export formats, portable-copy persistence, offline startup, phone controls at 390/360px widths, unavailable browser storage, tablet layouts, the glass tool indicator, accessibility preferences, and the GitHub Pages project path. PWA checks use a disposable normal Chrome profile for manifest/installability checks, offline reopening, and cache migration. Drawing checks simulate pen pressure and verify finger rejection, erase/undo, exports, and connected MCP persistence. Physical Android installation and S Pen hardware behavior require device testing.
 
 To rerun the checks with Node.js installed:
 
